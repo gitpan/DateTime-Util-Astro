@@ -144,18 +144,18 @@ sub lunar_longitude
     my $c = julian_centuries($dt);
     my $mean_moon = polynomial($c,
         218.3164591, 481267.88134236, -0.0013268,
-        1 / 538841, -1 / 65194000);
+        bigfloat(1) / 538841, bigfloat(-1) / 65194000);
     my $elongation = polynomial($c,
         297.8502042, 445267.1115168, -0.00163,
-        1 / 545868, -1 / 113065000);
+        bigfloat(1) / 545868, bigfloat(-1) / 113065000);
     my $solar_anomaly = polynomial($c,
-        357.5291092, 35999.0502909, -0.0001536, 1 / 24490000);
+        357.5291092, 35999.0502909, -0.0001536, bigfloat(1) / 24490000);
     my $lunar_anomaly = polynomial($c,
         134.9634114, 477198.8676313, 0.0008997,
-        1 / 69699, -1 / 14712000);
+        bigfloat(1) / 69699, bigfloat(-1) / 14712000);
     my $moon_node = polynomial($c,
         93.2720993, 483202.0175273, -0.0034029,
-        -1 / 3526000, 1 / 863310000);
+        bigfloat(-1) / 3526000, bigfloat(1) / 863310000);
     my $E = polynomial($c, 1, -0.002516, -0.0000074);
 
     my $big_ugly_number;
@@ -163,15 +163,15 @@ sub lunar_longitude
     foreach my $data (@{ LUNAR_LONGITUDE_ARGS() }) {
         ($v, $w, $x, $y, $z) = @$data;
         $big_ugly_number +=
-            $v * ($E ** $x) * sin_deg(
+            $v * (bigfloat($E) ** $x) * sin_deg(
                 $w * $elongation + $x * $solar_anomaly +
                 $y * $lunar_anomaly + $z * $moon_node);
     }
 
-    my $correction = $big_ugly_number / 1000000;
-    my $venus = (3958 / 1000000) * sin_deg(119.75 + $c * 131.849);
-    my $jupiter = (318 / 1000000) * sin_deg(53.09 + $c * 479264.29);
-    my $flat_earth = (1962 / 1000000) *
+    my $correction = bigfloat(1 / 1000000) * $big_ugly_number;
+    my $venus = bigfloat(3958 / 1000000) * sin_deg(119.75 + $c * 131.849);
+    my $jupiter = bigfloat(318 / 1000000) * sin_deg(53.09 + $c * 479264.29);
+    my $flat_earth = bigfloat(1962 / 1000000) *
         sin_deg($mean_moon - $moon_node);
 
     return bf_downgrade( mod(

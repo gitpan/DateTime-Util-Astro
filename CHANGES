@@ -1,12 +1,17 @@
 Changelog
 =========
 
+0.02 10 Feb 2004
+  - Change Build.PL to require DateTime::Util::Calc 0.02, which will handle
+    prompting for math libraries more elegantly
+  - Slightly reduce on the number of calls to moment()
+
 0.01 12 Jan 2004
   - Turn memoization back on.
   - Various minor optimizations (~20% performance increase on some
     cases)
 
-0.01_04 27 Dec 2003
+0.01_04 29 Dec 2003
   - Doc tweak
 
 0.01_03 20 Dec 2003

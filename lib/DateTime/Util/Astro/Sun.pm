@@ -3,7 +3,7 @@ use strict;
 use vars qw($VERSION @ISA @EXPORT_OK);
 BEGIN
 {
-    $VERSION = '0.01';
+    $VERSION = '0.02';
     @ISA = qw(Exporter);
     @EXPORT_OK = qw(
         solar_longitude
@@ -145,14 +145,14 @@ sub estimate_prior_solar_longitude
         { isa => 'DateTime' }, { type => Params::Validate::SCALAR() }, 
     );
 
-    my $tau  = moment($dt) - SOLAR_YEAR_RATE *
+    my $moment = moment($dt);
+    my $tau  = $moment - SOLAR_YEAR_RATE *
         mod(solar_longitude($dt) - $phi, 360);
     my $delta = mod(solar_longitude(
         dt_from_moment($tau)) - $phi + 180, 360) - 180;
 
-    my $rv = min(moment($dt), $tau - SOLAR_YEAR_RATE * $delta);
-
-    return dt_from_moment(bf_downgrade($rv));
+    my $rv = min($moment, $tau - SOLAR_YEAR_RATE * $delta);
+    return dt_from_moment($rv);
     
 }
 
