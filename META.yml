@@ -1,0 +1,33 @@
+--- #YAML:1.0
+name: DateTime-Util-Astro
+version: 0.01
+license: perl
+distribution_type: module
+requires:
+  DateTime: 0
+  DateTime::Util::Calc: 0
+  Math::Trig: 0
+  POSIX: 0
+  Params::Validate: 0
+recommends:
+  Math::BigFloat: 0
+  Math::BigInt: 0
+  Math::BigInt::GMP: 0
+  perl: 5.6.1
+build_requires:
+  Test::More: 0
+conflicts: {}
+provides:
+  DateTime::Util::Astro::::Location:
+    file: lib/DateTime/Util/Astro/Common.pm
+    version: 0.01
+  DateTime::Util::Astro::Common:
+    file: lib/DateTime/Util/Astro/Common.pm
+    version: 0.01
+  DateTime::Util::Astro::Moon:
+    file: lib/DateTime/Util/Astro/Moon.pm
+    version: 0.01
+  DateTime::Util::Astro::Sun:
+    file: lib/DateTime/Util/Astro/Sun.pm
+    version: 0.01
+generated_by: Module::Build version 0.21

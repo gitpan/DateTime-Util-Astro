@@ -1,0 +1,33 @@
+This file contains message digests of all files listed in MANIFEST,
+signed via the Module::Signature module, version 0.37.
+
+To verify the content in this distribution, first make sure you have
+Module::Signature installed, then type:
+
+    % cpansign -v
+
+It would check each file's integrity, as well as the signature's
+validity.  If "==> Signature verified OK! <==" is not displayed,
+the distribution may already have been compromised, and you should
+not run its Makefile.PL or Build.PL.
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+SHA1 d76b770b6d0f0e20ee92262db83dab923e2c91ad Build.PL
+SHA1 3933b8775a7af6f0ae9dd661c838554bdc41fa63 LICENSE
+SHA1 f44af7cb29736b33f3710421d15442041e75bdf8 MANIFEST
+SHA1 cd94a1aca3b06bbca639ee2b38799227b4ca3be1 META.yml
+SHA1 ffbb4ba97cdc2ea00f377be0051bdfbb6d96c91e Makefile.PL
+SHA1 f07292351d345bf5617619faad401498fa4e2955 lib/DateTime/Util/Astro/Common.pm
+SHA1 da09263ba56cf9f38c0a711326d00e60ce834d4b lib/DateTime/Util/Astro/Moon.pm
+SHA1 fa3144b1109a057fbe28d6d04988031bfe823791 lib/DateTime/Util/Astro/Sun.pm
+SHA1 c921ade8ff9005f66672bdec3ede96080c9bf0df t/01-sanity.t
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE/1WoVhB111rlaNnYRAjeeAJsE309St3ngBbsgqJxdRcHKsAT8BQCaA4yU
+6vCODOjXE4ZxZ5b5wzzgJl4=
+=OBMO
+-----END PGP SIGNATURE-----
