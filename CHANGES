@@ -1,7 +1,11 @@
 Changelog
 =========
 
-0.03 07 Jan 2005
+0.05 08 Jan 2005
+  - Introduce set_cache()/add_cache() interface.
+  - Change default cache to MemoryCache, but recommend FileCache
+
+0.04 07 Jan 2005
   - No more param validation in the name of efficiency
   - Use Math::BigInt/Math::BigFloat more extensively
   - Require newer DateTime::Util::Calc

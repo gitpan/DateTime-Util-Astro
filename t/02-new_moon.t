@@ -1,16 +1,12 @@
 #!perl
 
 use strict;
-use Test::More qw(no_plan);
+use Test::More (tests => 41);
 BEGIN
 {
     use_ok("DateTime::Util::Astro::Moon", qw(nth_new_moon lunar_longitude));
     use_ok("DateTime::Util::Astro::Sun",  qw(solar_longitude));
 }
-
-require_ok('Cache::MemoryCache');
-$DateTime::Util::Astro::Moon::CACHE = Cache::MemoryCache->new(
-    { namespace => 'test' });
 
 # Below table from http://aa.usno.navy.mil/data/docs/MoonPhase.html
 # for year 2000
@@ -60,4 +56,8 @@ foreach my $data (@data) {
     $delta = abs($sl - $ll);
 
     ok($delta < $DELTA_LONGITUDE, "Longitude delta for n = $n. Delta = $DELTA_LONGITUDE");
+
+    # check cache
+    my $cached = DateTime::Util::Astro::Moon::get_cache()->get($n);
+    ok($cached == $dt, "Cached result match");
 }

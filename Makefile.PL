@@ -3,7 +3,7 @@ use ExtUtils::MakeMaker;
 WriteMakefile
 (
           'NAME' => 'DateTime-Util-Astro',
-          'VERSION' => '0.04',
+          'VERSION' => '0.05',
           'PREREQ_PM' => {
                            'Cache::Cache' => '0',
                            'DateTime' => '0',

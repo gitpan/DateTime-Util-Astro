@@ -8,7 +8,7 @@ use strict;
 use vars qw($VERSION @ISA @EXPORT_OK $CACHE);
 BEGIN
 {
-    $VERSION = '0.03';
+    $VERSION = '0.04';
     @ISA = qw(Exporter);
     @EXPORT_OK = qw(
         MEAN_SYNODIC_MONTH
@@ -18,7 +18,6 @@ BEGIN
     );
 }
 
-use Cache::FileCache;
 use DateTime::Util::Calc
     qw(polynomial mod sin_deg bf_downgrade bigfloat moment dt_from_moment search_next);
 use DateTime::Util::Astro::Common
@@ -143,17 +142,22 @@ use constant NTH_NEW_MOON_ADDITIONAL_ARGS => [
     [ 239.56, 25.513099, 0.000035 ]
 ];
 
-sub _get_cache
+sub set_cache
+{
+    $CACHE = shift;
+}
+
+sub get_cache
 {
     if (! defined $CACHE) {
-        require Cache::FileCache;
+        require Cache::MemoryCache;
 
         my $namespace = __PACKAGE__;
         $namespace =~ s/::/-/g;
-        $CACHE = Cache::FileCache->new( {
+        set_cache(Cache::MemoryCache->new( {
             namespace => $namespace,
             default_expires_in => $Cache::Cache::EXPIRES_NEVER
-        });
+        }));
     }
     return $CACHE;
 }
@@ -195,10 +199,6 @@ sub lunar_longitude
     my $jupiter = bigfloat(318 / 1000000) * sin_deg(53.09 + $c * 479264.29);
     my $flat_earth = bigfloat(1962 / 1000000) *
         sin_deg($mean_moon - $moon_node);
-# warn "correction = $correction";
-# warn "venus = $venus";
-# warn "jupiter = $jupiter";
-# warn "flat_earth = $flat_earth";
     return bf_downgrade( mod(
         $mean_moon + $correction + $venus +
         $jupiter + $flat_earth + nutation($dt),
@@ -211,7 +211,7 @@ sub nth_new_moon
 {
     my $n = shift;
 
-    my $cache = _get_cache();
+    my $cache = get_cache();
     my $p     = $cache->get($n);
     if ($p) {
         return $p;
@@ -323,27 +323,33 @@ use GMP.
 
 =head2 Caching Results
 
-DateTime::Util::Astro::Moon can use L<Cache::FileCache|Cache::FileCache> to cache results of certain functions.
+DateTime::Util::Astro::Moon can use L<Cache::MemoryCache|Cache::MemoryCache> to cache results of certain functions.
 
 This is always turned on. For example, nth_new_moon() is basically a constant
 function for the given C<n>, and therefore should not need to recalculate
 values ever again.
 
 DateTime::Util::Astro::Moon uses L<Cache::Cache|Cache::Cache> for its cache
-intetface, and by defaults to using L<Cache::FileCache|Cache::FileCache>.
+intetface, and by defaults to using L<Cache::MemoryCache|Cache::MemoryCache>.
 If you would like to use a different type of cache, or tweak its behavior,
-you can either assign or call methods on this variable:
+you can either assign or call methods on this cache object:
 
-  $DateTime::Util::Astro::Moon::CACHE
+  DateTime::Util::Astro::Moon::set_cache($cache);
+  my $cache = DateTime::Util::Astro::Moon::get_cache();
 
 For example, if you want to forcibly expire this cache, do this:
 
-  $DateTime::Util::Astro::Moon::CACHE->purge();
+  DateTime::Util::Astro::Moon::get_cache()->purge();
 
-Or use a memory cache instead
+Or for maximum efficiency, you could use a FileCache with EXPIRES_NEVER set
+on (new moons don't change from for a given $n, so it's safe to do this --
+however, you probably want to clear it when you upgrade this module)
 
-  $DateTime::Util::Astro::Moon::CACHE = Cache::MemoryCache->new(
-    ... args ...
+  DateTime::Util::Astro::Moon::set_cache(
+    Cache::MemoryCache->new({
+      namespace => 'MoonCache',
+      default_expires_in => $Cache::Cache::EXPIRES_NEVER
+    })
   );
 
 =head1 CONSTANTS
@@ -368,9 +374,17 @@ Given an integer $n, returns a DateTime object representing the moment
 of $n-th new moon after R.D. 0. The 0th new moon was on January 11, 1
 (Gregorian)
 
+=head2 get_cache()
+
+Return the cache object.
+
+=head2 set_cache()
+
+Set the cache object.
+
 =head1 AUTHOR
 
-Daisuke Maki E<lt>daisuke@cpan.orgE<gt>
+Daisuke Maki E<lt>dmaki@cpan.orgE<gt>
 
 =head1 REFERENCES
 

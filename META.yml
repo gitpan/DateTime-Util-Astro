@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name: DateTime-Util-Astro
-version: 0.04
+version: 0.05
 author: ~
 abstract: ~
 license: perl
@@ -23,7 +23,7 @@ provides:
     version: 0.02
   DateTime::Util::Astro::Moon:
     file: lib/DateTime/Util/Astro/Moon.pm
-    version: 0.03
+    version: 0.04
   DateTime::Util::Astro::Sun:
     file: lib/DateTime/Util/Astro/Sun.pm
     version: 0.03
