@@ -22,6 +22,7 @@ my $build = Module::Build->new(
 		'Math::BigInt::GMP' => 0,
 	},
 	sign => 1,
-	create_readme => 0
+	create_readme => 0,
+    create_makefile_pl => 'passthrough'
 );
 $build->create_build_script;

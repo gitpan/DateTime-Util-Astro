@@ -262,20 +262,20 @@ sub local_from_apparent
     $dt;
 }
 
-BEGIN
-{
-    if (eval { require Memoize } && !$@) {
-        Memoize::memoize('EC_C');
-        Memoize::memoize('EC_X');
-        Memoize::memoize('EC1');
-        Memoize::memoize('EC2');
-        Memoize::memoize('EC3');
-        Memoize::memoize('EC4');
-        Memoize::memoize('EC5');
-        Memoize::memoize('EC6');
-        Memoize::memoize('julian_centuries');
-    }
-}
+#BEGIN
+#{
+#    if (eval { require Memoize } && !$@) {
+#        Memoize::memoize('EC_C');
+#        Memoize::memoize('EC_X');
+#        Memoize::memoize('EC1');
+#        Memoize::memoize('EC2');
+#        Memoize::memoize('EC3');
+#        Memoize::memoize('EC4');
+#        Memoize::memoize('EC5');
+#        Memoize::memoize('EC6');
+#        Memoize::memoize('julian_centuries');
+#    }
+#}
 
 package DateTime::Util::Astro::::Location;
 use strict;

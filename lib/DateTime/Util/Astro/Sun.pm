@@ -78,6 +78,8 @@ use constant SOLAR_LONGITUDE_ARGS => [
     [     10, 126.60000,  26895.2920000 ],
     [     10,  85.90000,  12297.5360000 ]
 ];
+use constant SOLAR_YEAR_RATE => MEAN_TROPICAL_YEAR / 360;
+use constant SOLAR_LONGITUDE_ALLOWED_DELTA => 10 ** -5;
 
 # [1] p.182
 sub solar_longitude
@@ -95,7 +97,8 @@ sub solar_longitude
         36000.76953744 * $c + 
         0.000005729577951308232 * $big_ugly_number;
 
-    return mod($longitude + aberration($dt) + nutation($dt), 360);
+    return bf_downgrade(
+        mod($longitude + aberration($dt) + nutation($dt), 360) );
 }
 
 # [1] p.184
@@ -105,16 +108,13 @@ sub solar_longitude_after
         { isa => 'DateTime' }, { type => Params::Validate::SCALAR() }, 
     );
 
-    my $epsilon = 10 ** -5;
-    my $rate    = MEAN_TROPICAL_YEAR / 360;
     my $tau     = moment($dt) +
-        $rate * mod($phi - solar_longitude($dt), 360);
+        SOLAR_YEAR_RATE * mod($phi - solar_longitude($dt), 360);
     my $l       = max(moment($dt), $tau - 5);
     my $u       = $tau + 5;
 
-print "approx date: ", dt_from_moment($tau)->datetime, "\n";
     my $rv = binary_search($l, $u,
-        sub { abs($_[0] - $_[1]) <= $epsilon },
+        sub { abs($_[0] - $_[1]) <= SOLAR_LONGITUDE_ALLOWED_DELTA },
         sub { mod(solar_longitude(
             dt_from_moment($_[0])) - $phi, 360) < 180 } );
     return dt_from_moment(bf_downgrade($rv));
@@ -126,16 +126,13 @@ sub solar_longitude_before
         { isa => 'DateTime' }, { type => Params::Validate::SCALAR() }, 
     );
 
-    my $epsilon = 10 ** -5;
-    my $rate    = MEAN_TROPICAL_YEAR / 360;
     my $tau     = moment($dt) +
-        $rate * mod(solar_longitude($dt) - $phi, 360);
+        SOLAR_YEAR_RATE * mod(solar_longitude($dt) - $phi, 360);
     my $l       = $tau - 5;
     my $u       = min(moment($dt), $tau + 5);
 
-
     my $rv = binary_search($l, $u,
-        sub { abs($_[0] - $_[1]) <= $epsilon },
+        sub { abs($_[0] - $_[1]) <= SOLAR_LONGITUDE_ALLOWED_DELTA },
         sub { mod(solar_longitude(
             dt_from_moment($_[0])), 360) < 180 } );
     return dt_from_moment(bf_downgrade($rv));
@@ -148,13 +145,12 @@ sub estimate_prior_solar_longitude
         { isa => 'DateTime' }, { type => Params::Validate::SCALAR() }, 
     );
 
-    my $rate = MEAN_TROPICAL_YEAR / 360;
-    my $tau  = moment($dt) - $rate *
+    my $tau  = moment($dt) - SOLAR_YEAR_RATE *
         mod(solar_longitude($dt) - $phi, 360);
     my $delta = mod(solar_longitude(
         dt_from_moment($tau)) - $phi + 180, 360) - 180;
 
-    my $rv = min(moment($dt), $tau - $rate * $delta);
+    my $rv = min(moment($dt), $tau - SOLAR_YEAR_RATE * $delta);
 
     return dt_from_moment(bf_downgrade($rv));
     

@@ -174,11 +174,11 @@ sub lunar_longitude
     my $flat_earth = bigfloat(1962 / 1000000) *
         sin_deg($mean_moon - $moon_node);
 
-    return mod(
+    return bf_downgrade( mod(
         $mean_moon + $correction + $venus +
         $jupiter + $flat_earth + nutation($dt),
         360
-    );
+    ) );
 }
 
 # [1] p.187
