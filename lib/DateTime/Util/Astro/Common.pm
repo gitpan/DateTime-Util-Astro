@@ -1,3 +1,8 @@
+# Common.pm,v 1.4 2005/01/07 12:18:59 lestrrat Exp
+#
+# Daisuke Maki <dmaki@cpan.org>
+# All rights reserved.
+# 
 # Please see file "LICENSE" for license information on code from
 # "Calendrical Calculations".
 
@@ -7,7 +12,7 @@ use vars qw($VERSION @ISA @EXPORT_OK);
 
 BEGIN
 {
-    $VERSION = '0.01';
+    $VERSION = '0.02';
     @ISA = qw(Exporter);
     @EXPORT_OK = qw(
         aberration
@@ -35,14 +40,15 @@ use DateTime;
 use DateTime::Util::Calc
      qw(angle polynomial sin_deg cos_deg tan_deg bigfloat
         min moment dt_from_moment bf_downgrade);
+use Math::BigInt   ('upgrade' => 'Math::BigFloat');
+use Math::BigFloat ('lib'     => 'GMP,Pari');
 use Math::Trig qw(pi);
-use Params::Validate();
 
 # I got the following from (DateTime->new(...)->utc_rd_values)[0]
-use constant RD_MOMENT_1900_JAN_1   => 693596;
-use constant RD_MOMENT_1810_JAN_1   => 660724.5;
-use constant RD_MOMENT_J2000 => 730120.5;
-use constant MEAN_TROPICAL_YEAR => 365.242189;
+use constant RD_MOMENT_1900_JAN_1 => Math::BigFloat->new(693596);
+use constant RD_MOMENT_1810_JAN_1 => Math::BigFloat->new(660724.5);
+use constant RD_MOMENT_J2000      => Math::BigFloat->new(730120.5);
+use constant MEAN_TROPICAL_YEAR   => Math::BigFloat->new(365.242189);
 use constant SPRING => 0;
 use constant SUMMER => 90;
 use constant AUTUMN => 180;
@@ -51,27 +57,21 @@ use constant WINTER => 270;
 # p.170
 sub standard_from_universal
 {
-    my($dt, $location) = Params::Validate::validate_pos(@_,
-        { isa => 'DateTime' }, { isa => 'Astro::Earth::Location' }
-    );
+    my($dt, $location) = @_;
     dt_from_moment(moment($dt) + $location->zone / 24);
 }
 
 # p.170
 sub universal_from_standard
 {
-    my($dt, $location) = Params::Validate::validate_pos(@_,
-        { isa => 'DateTime' }, { isa => 'Astro::Earth::Location' }
-    );
+    my($dt, $location) = @_;
     dt_from_moment(moment($dt) - $location->zone / 24);
 }
 
 # p.170
 sub standard_from_local
 {
-    my($dt, $location) = Params::Validate::validate_pos(@_,
-        { isa => 'DateTime' }, { isa => 'Astro::Earth::Location' }
-    );
+    my($dt, $location) = @_;
     standard_from_universal(dt_from_moment(
         universal_from_local($dt, $location)), $location);
 }
@@ -79,9 +79,7 @@ sub standard_from_local
 # p.170
 sub local_from_standard
 {
-    my($dt, $location) = Params::Validate::validate_pos(@_,
-        { isa => 'DateTime' }, { isa => 'Astro::Earth::Location' }
-    );
+    my($dt, $location) = @_;
     local_from_universal(dt_from_moment(
         universal_from_standard($dt, $location)), $location);
 }
@@ -89,30 +87,27 @@ sub local_from_standard
 # p.169
 sub local_from_universal
 {
-    my($dt, $location) = Params::Validate::validate_pos(@_,
-        { isa => 'DateTime' }, { isa => 'Astro::Earth::Location' }
-    );
+    my($dt, $location) = @_;
     moment($dt) + $location->longitude / 360;
 }
 # p.169
 sub universal_from_local
 {
-    my($dt, $location) = Params::Validate::validate_pos(@_,
-        { isa => 'DateTime' }, { isa => 'Astro::Earth::Location' }
-    );
+    my($dt, $location) = @_;
     moment($dt) - $location->longitude / 360;
 }
 
 # [1] p172
 sub dynamical_moment_from_dt
 {
-    my($dt) = Params::Validate::validate_pos(@_, { isa => 'DateTime' });
+    my $dt = shift;
     return moment($dt) + ephemeris_correction($dt);
 }
 
 sub dt_from_dynamical
 {
-    my($t) = Params::Validate::validate_pos(@_, { type => Params::Validate::SCALAR() } );
+    my $t = shift;
+
     return dt_from_moment(
         $t - ephemeris_correction(dt_from_moment($t)));
 }
@@ -165,13 +160,14 @@ sub ephemeris_correction
 
     return $correction;
 }
+
 sub EC_C {
     (bigfloat(RD_MOMENT_1900_JAN_1 -
-        (DateTime->new(year => $_[0], month => 7, day => 1)->utc_rd_values)[0]))    / 36525;
+        (DateTime->new(year => $_[0], month => 7, day => 1, time_zone => 'UTC')->utc_rd_values)[0]))    / 36525;
 }
 sub EC_X {
     bigfloat(RD_MOMENT_1810_JAN_1 -
-        (DateTime->new(year => $_[0], month => 1, day => 1)->utc_rd_values)[0]);
+        (DateTime->new(year => $_[0], month => 1, day => 1, time_zone => 'UTC')->utc_rd_values)[0]);
 }
 sub EC1 {
     $_[0] / (24 * 3600) }
@@ -200,7 +196,6 @@ sub EC6 {
 sub aberration
 {
     my $dt = shift;
-
     my $c = julian_centuries($dt);
     return 0.0000974 * cos_deg(177.63 + 35999.01848 * $c) - 0.0005575;
 }
@@ -208,7 +203,7 @@ sub aberration
 # [1] p.172
 sub julian_centuries
 {
-    my($dt) = Params::Validate::validate_pos(@_, { isa => 'DateTime' });
+    my $dt = shift;
     return (dynamical_moment_from_dt($dt) - RD_MOMENT_J2000) / 36525;
 }
 
@@ -262,34 +257,13 @@ sub local_from_apparent
     $dt;
 }
 
-#BEGIN
-#{
-#    if (eval { require Memoize } && !$@) {
-#        Memoize::memoize('EC_C');
-#        Memoize::memoize('EC_X');
-#        Memoize::memoize('EC1');
-#        Memoize::memoize('EC2');
-#        Memoize::memoize('EC3');
-#        Memoize::memoize('EC4');
-#        Memoize::memoize('EC5');
-#        Memoize::memoize('EC6');
-#        Memoize::memoize('julian_centuries');
-#    }
-#}
-
 package DateTime::Util::Astro::::Location;
 use strict;
-use Params::Validate ();
 
 sub new
 {
     my $class = shift;
-    my %args = Params::Validate::validate(@_, {
-        longitude => { type => Params::Validate::SCALAR(), default => 0 },
-        latitude  => { type => Params::Validate::SCALAR(), default => 0 },
-        elevation => { type => Params::Validate::SCALAR(), default => 0 },
-        zone      => { type => Params::Validate::SCALAR(), default => 0 },
-    });
+    my %args = @_;
 
     bless \%args, $class;
 }
@@ -303,8 +277,7 @@ sub %s
     my $self = shift;
     my $ret = $self->{%s};
     if (@_) {
-        my $val = Params::Validate::validate_pos(@_,
-            { type => Params::Validate::SCALAR() });
+        my $val = shift;
         $self->{%s} = $val;
     }
     return $ret;

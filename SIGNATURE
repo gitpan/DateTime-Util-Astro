@@ -1,12 +1,12 @@
 This file contains message digests of all files listed in MANIFEST,
-signed via the Module::Signature module, version 0.38.
+signed via the Module::Signature module, version 0.44.
 
 To verify the content in this distribution, first make sure you have
 Module::Signature installed, then type:
 
     % cpansign -v
 
-It would check each file's integrity, as well as the signature's
+It will check each file's integrity, as well as the signature's
 validity.  If "==> Signature verified OK! <==" is not displayed,
 the distribution may already have been compromised, and you should
 not run its Makefile.PL or Build.PL.
@@ -14,21 +14,22 @@ not run its Makefile.PL or Build.PL.
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-SHA1 f63ba02ef9fb036becc45c099fe4073d79f57bf4 Build.PL
-SHA1 57b44159ab9f24e0f8d63e25b6bbc32850a470e8 CHANGES
+SHA1 834d49fc7ffdbd25e3329eb249c3a877ac70a0f8 Build.PL
+SHA1 5d672aa3daa662c719352fe584edb0805a20fca6 CHANGES
 SHA1 3933b8775a7af6f0ae9dd661c838554bdc41fa63 LICENSE
-SHA1 061ab0d2a880891fe33c5fe2f80e093cd339944d MANIFEST
-SHA1 fad3952aaff1ce83faca545c061904e64cb255f1 META.yml
-SHA1 faec519f213f7e603ecd1420d147b35713757738 Makefile.PL
-SHA1 f4f23dc82d5f6777e5dd42b3c34a2ce4e0a7c139 lib/DateTime/Util/Astro/Common.pm
-SHA1 c4157374edd894699b76640429b34f4e37d752a2 lib/DateTime/Util/Astro/Moon.pm
-SHA1 8ba28a2208aab8c54ff673c9ff6df3c01b19f609 lib/DateTime/Util/Astro/Sun.pm
+SHA1 ded784369dd041467dda7cc38c181a71eec5882e MANIFEST
+SHA1 bfa9a688939a3e34a0d614111a79e1b5a5e896a7 META.yml
+SHA1 ad8f416de2e0e872375a88a5dad9a779774c9495 Makefile.PL
+SHA1 f45c6b723e8fdd3fee5228cb7be7151ee06b0b56 lib/DateTime/Util/Astro/Common.pm
+SHA1 938c5f71d34164c5954522592187188b331f9494 lib/DateTime/Util/Astro/Moon.pm
+SHA1 7f6eeb7739d4fa1e134db6aed89ed5db534a5a8e lib/DateTime/Util/Astro/Sun.pm
 SHA1 c921ade8ff9005f66672bdec3ede96080c9bf0df t/01-sanity.t
+SHA1 f4beaca24e1c20be403f89fd923668db077205bd t/02-new_moon.t
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
+Version: GnuPG v1.0.4 (GNU/Linux)
 Comment: For info see http://www.gnupg.org
 
-iD8DBQFAKQ8WpIZqybP6lHMRAuhJAKDjp9OcnJmgcVUWLEdPN8H+7Cy6pACfZ1Ei
-I0DmBSjIpu0tXJnGiALg3RA=
-=ZFui
+iD8DBQFB3ofYhB111rlaNnYRAicwAJ9Au7YTpD1F7BBhbc7DU9X5k9azPACfY4sV
+bVsLmmwu/fhzj31xJoLfFbU=
+=+iSy
 -----END PGP SIGNATURE-----

@@ -1,9 +1,14 @@
+# Moon.pm,v 1.5 2005/01/07 12:18:59 lestrrat Exp
+#
+# Daisuke Maki <dmaki@cpan.org>
+# All rights reserved.
+
 package DateTime::Util::Astro::Moon;
 use strict;
-use vars qw($VERSION @ISA @EXPORT_OK);
+use vars qw($VERSION @ISA @EXPORT_OK $CACHE);
 BEGIN
 {
-    $VERSION = '0.01';
+    $VERSION = '0.03';
     @ISA = qw(Exporter);
     @EXPORT_OK = qw(
         MEAN_SYNODIC_MONTH
@@ -13,12 +18,14 @@ BEGIN
     );
 }
 
+use Cache::FileCache;
 use DateTime::Util::Calc
     qw(polynomial mod sin_deg bf_downgrade bigfloat moment dt_from_moment search_next);
 use DateTime::Util::Astro::Common
     qw(julian_centuries nutation dt_from_dynamical);
 use DateTime::Util::Astro::Sun;
-use Params::Validate();
+use Math::BigFloat ('lib'     => 'GMP,Pari');
+use Math::BigInt   ('upgrade' => 'Math::BigFloat');
 
 use constant MEAN_SYNODIC_MONTH => 29.530588853;
 use constant LUNAR_LONGITUDE_ARGS => [
@@ -136,6 +143,21 @@ use constant NTH_NEW_MOON_ADDITIONAL_ARGS => [
     [ 239.56, 25.513099, 0.000035 ]
 ];
 
+sub _get_cache
+{
+    if (! defined $CACHE) {
+        require Cache::FileCache;
+
+        my $namespace = __PACKAGE__;
+        $namespace =~ s/::/-/g;
+        $CACHE = Cache::FileCache->new( {
+            namespace => $namespace,
+            default_expires_in => $Cache::Cache::EXPIRES_NEVER
+        });
+    }
+    return $CACHE;
+}
+
 # [1] p190
 sub lunar_longitude
 {
@@ -173,7 +195,10 @@ sub lunar_longitude
     my $jupiter = bigfloat(318 / 1000000) * sin_deg(53.09 + $c * 479264.29);
     my $flat_earth = bigfloat(1962 / 1000000) *
         sin_deg($mean_moon - $moon_node);
-
+# warn "correction = $correction";
+# warn "venus = $venus";
+# warn "jupiter = $jupiter";
+# warn "flat_earth = $flat_earth";
     return bf_downgrade( mod(
         $mean_moon + $correction + $venus +
         $jupiter + $flat_earth + nutation($dt),
@@ -184,8 +209,13 @@ sub lunar_longitude
 # [1] p.187
 sub nth_new_moon
 {
-    my($n) = Params::Validate::validate_pos(@_,
-        { type => Params::Validate::SCALAR });
+    my $n = shift;
+
+    my $cache = _get_cache();
+    my $p     = $cache->get($n);
+    if ($p) {
+        return $p;
+    }
 
     my $k = $n - 24724;
     my $c = $k / 1236.85;
@@ -230,23 +260,17 @@ sub nth_new_moon
         $additional += bigfloat($l) * sin_deg($i + $j * $k);
     }
 
-    return dt_from_dynamical(
-        bf_downgrade($approx + $correction + $extra + $additional));
+    $p = dt_from_dynamical($approx + $correction + $extra + $additional);
+    $cache->set($n, $p);
+    return $p;
 }
 
 # [1] p.192
 sub lunar_phase
 {
-    my($dt) = Params::Validate::validate_pos(@_, { isa => 'DateTime' });
+    my $dt = shift;
     return mod(
         lunar_longitude($dt) - DateTime::Util::Astro::Sun::solar_longitude($dt), 360);
-}
-
-BEGIN
-{
-    if (eval { require Memoize } && !$@) {
-        Memoize::memoize('nth_new_moon');
-    }
 }
 
 1;
@@ -297,22 +321,30 @@ Math::BigFloat. However, this adds a fair amount of overhead, and you will
 see a noticeable difference in execution speed. This is true even if you
 use GMP.
 
-If you are willing to trade accuracy for speed, you may override the
-class variable from DateTime::Util::Calc to toggle off the use of Math::BigFloat:
-
-  use DateTime::Util::Astro::Moon;
-  local $DateTime::Util::Calc::NoBigFloat = 1;
-
-  my $x = DateTime::Util::Astro::Moon->lunar_longitude($dt);
-
 =head2 Caching Results
 
-DateTime::Util::Astro::Moon can use L<Memoize|Memoize> to cache results of certain functions.
+DateTime::Util::Astro::Moon can use L<Cache::FileCache|Cache::FileCache> to cache results of certain functions.
 
-By default this is turned on, but you may toggle it off by passing the
-"memoize" argument to the use statement:
+This is always turned on. For example, nth_new_moon() is basically a constant
+function for the given C<n>, and therefore should not need to recalculate
+values ever again.
 
-  use DateTime::Util::Astro::Moon (memoize => 0);
+DateTime::Util::Astro::Moon uses L<Cache::Cache|Cache::Cache> for its cache
+intetface, and by defaults to using L<Cache::FileCache|Cache::FileCache>.
+If you would like to use a different type of cache, or tweak its behavior,
+you can either assign or call methods on this variable:
+
+  $DateTime::Util::Astro::Moon::CACHE
+
+For example, if you want to forcibly expire this cache, do this:
+
+  $DateTime::Util::Astro::Moon::CACHE->purge();
+
+Or use a memory cache instead
+
+  $DateTime::Util::Astro::Moon::CACHE = Cache::MemoryCache->new(
+    ... args ...
+  );
 
 =head1 CONSTANTS
 

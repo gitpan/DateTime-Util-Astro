@@ -4,9 +4,9 @@ lib/DateTime/Util/Astro/Common.pm
 lib/DateTime/Util/Astro/Moon.pm
 lib/DateTime/Util/Astro/Sun.pm
 LICENSE
-Makefile.PL
-MANIFEST
-META.yml
+MANIFEST			This list of files
 t/01-sanity.t
-
+t/02-new_moon.t
+META.yml
+Makefile.PL        Added here by Build.PL
 SIGNATURE    Added here by Module::Build

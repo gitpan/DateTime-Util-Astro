@@ -1,9 +1,14 @@
+# Sun.pm,v 1.6 2005/01/07 12:18:59 lestrrat Exp
+#
+# Daisuke Maki <dmaki@cpan.org>
+# All rights reserved.
+
 package DateTime::Util::Astro::Sun;
 use strict;
 use vars qw($VERSION @ISA @EXPORT_OK);
 BEGIN
 {
-    $VERSION = '0.02';
+    $VERSION = '0.03';
     @ISA = qw(Exporter);
     @EXPORT_OK = qw(
         solar_longitude
@@ -84,29 +89,25 @@ use constant SOLAR_LONGITUDE_ALLOWED_DELTA => 10 ** -5;
 # [1] p.182
 sub solar_longitude
 {
-    my($dt) = Params::Validate::validate_pos(@_, { isa => 'DateTime' });
-
+    my $dt = shift;
     my $c = julian_centuries($dt);
-    my $big_ugly_number = 0;
+    my $big_ugly_number = Math::BigFloat->new(0);
     foreach my $numbers (@{ SOLAR_LONGITUDE_ARGS() }) {
         $big_ugly_number += bigfloat($numbers->[0]) * 
             sin_deg($numbers->[1] + $numbers->[2] * $c)
     }
 
-    my $longitude = 282.7771834 +
-        36000.76953744 * $c + 
-        0.000005729577951308232 * $big_ugly_number;
+    my $longitude = Math::BigFloat->new(282.7771834) +
+        Math::BigFloat->new(36000.76953744) * $c + 
+        Math::BigFloat->new(0.000005729577951308232) * $big_ugly_number;
 
-    return bf_downgrade(
-        mod($longitude + aberration($dt) + nutation($dt), 360) );
+    return mod($longitude + aberration($dt) + nutation($dt), 360);
 }
 
 # [1] p.184
 sub solar_longitude_after
 {
-    my($dt, $phi) = Params::Validate::validate_pos(@_,
-        { isa => 'DateTime' }, { type => Params::Validate::SCALAR() }, 
-    );
+    my($dt, $phi) = @_;
 
     my $tau     = moment($dt) +
         SOLAR_YEAR_RATE * mod($phi - solar_longitude($dt), 360);
@@ -122,9 +123,7 @@ sub solar_longitude_after
 
 sub solar_longitude_before
 {
-    my($dt, $phi) = Params::Validate::validate_pos(@_,
-        { isa => 'DateTime' }, { type => Params::Validate::SCALAR() }, 
-    );
+    my($dt, $phi) = @_;
 
     my $tau     = moment($dt) +
         SOLAR_YEAR_RATE * mod(solar_longitude($dt) - $phi, 360);
@@ -141,9 +140,7 @@ sub solar_longitude_before
 # [1] p.203
 sub estimate_prior_solar_longitude
 {
-    my($dt, $phi) = Params::Validate::validate_pos(@_,
-        { isa => 'DateTime' }, { type => Params::Validate::SCALAR() }, 
-    );
+    my($dt, $phi) = @_;
 
     my $moment = moment($dt);
     my $tau  = $moment - SOLAR_YEAR_RATE *
@@ -159,9 +156,7 @@ sub estimate_prior_solar_longitude
 # [1] p.198, errata 179
 sub sine_offset
 {
-    my($dt, $location, $alpha) = Params::Validate::validate_pos(@_,
-        { isa => 'DateTime' }, { isa => 'Astro::Earth::Location' }, 
-        { type => Params::Validate::SCALAR() } );
+    my($dt, $location, $alpha) = @_;
     my $phi   = $location->latitude;
     my $delta = asin_deg(
         sin_deg(obliquity($dt)) *
@@ -174,10 +169,7 @@ sub sine_offset
 # [1] p.198, errata 179
 sub approx_moment_of_depression
 {
-    my($dt, $location, $alpha, $morning) = Params::Validate::validate_pos(@_,
-        { isa => 'DateTime' }, { isa => 'Astro::Earth::Location' }, 
-        { type => Params::Validate::SCALAR() },
-        { type => Params::Validate::BOOLEAN() } );
+    my($dt, $location, $alpha, $morning) = @_;
 
     my $try  = sine_offset($dt, $location, $alpha);
     my $date = POSIX::floor(moment($dt));
@@ -239,19 +231,6 @@ this book are I<approximations>.
 Obviously we would like to make this module as good as possible, but
 there's only so much you can do in the accuracy department. However, having
 L<GMP|http://www.swox.com/gmp> and Math::BigInt::GMP may help a little bit.
-
-This module by default uses Perl's arbitrary precision calculation module
-Math::BigFloat. However, this adds a fair amount of overhead, and you will
-see a noticeable difference in execution speed. This is true even if you
-use GMP.
-
-If you are willing to trade accuracy for speed, you may override the
-class variable from DateTime::Util::Calc to toggle off the use of Math::BigFloat:
-
-  use DateTime::Util::Astro::Sun qw(solar_longitude);
-  local $DateTime::Util::Calc::NoBigFloat = 1;
-
-  my $x = solnar_longitude($dt);
 
 =head1 FUNCTIONS
 

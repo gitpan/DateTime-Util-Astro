@@ -1,6 +1,13 @@
 Changelog
 =========
 
+0.03 07 Jan 2005
+  - No more param validation in the name of efficiency
+  - Use Math::BigInt/Math::BigFloat more extensively
+  - Require newer DateTime::Util::Calc
+  - Use Cache::Cache for caching
+  - No more memoizing
+
 0.02 10 Feb 2004
   - Change Build.PL to require DateTime::Util::Calc 0.02, which will handle
     prompting for math libraries more elegantly
