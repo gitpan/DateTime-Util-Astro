@@ -19,7 +19,7 @@ my $class = Module::Build->subclass(code => q|
 
 my $build = $class->new(
     module_name => 'DateTime-Util-Astro',
-    dist_version => '0.05',
+    dist_version => '0.06',
     license => 'perl',
     build_requires => {
         'Test::More' => 0

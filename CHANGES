@@ -1,6 +1,10 @@
 Changelog
 =========
 
+0.06 12 Jan 2005
+  - Fix solar_longitude_before()
+  - Add tests
+
 0.05 08 Jan 2005
   - Introduce set_cache()/add_cache() interface.
   - Change default cache to MemoryCache, but recommend FileCache

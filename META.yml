@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name: DateTime-Util-Astro
-version: 0.05
+version: 0.06
 author: ~
 abstract: ~
 license: perl
@@ -26,5 +26,5 @@ provides:
     version: 0.04
   DateTime::Util::Astro::Sun:
     file: lib/DateTime/Util/Astro/Sun.pm
-    version: 0.03
+    version: 0.04
 generated_by: Module::Build version 0.2607

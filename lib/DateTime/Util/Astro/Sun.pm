@@ -8,7 +8,7 @@ use strict;
 use vars qw($VERSION @ISA @EXPORT_OK);
 BEGIN
 {
-    $VERSION = '0.03';
+    $VERSION = '0.04';
     @ISA = qw(Exporter);
     @EXPORT_OK = qw(
         solar_longitude
@@ -19,8 +19,8 @@ BEGIN
 }
 
 use DateTime;
-use DateTime::Util::Calc qw(
-    polynomial mod min max bf_downgrade angle bigfloat binary_search
+use DateTime::Util::Calc
+    qw(polynomial mod min max bf_downgrade angle bigfloat binary_search
     moment dt_from_moment sin_deg cos_deg tan_deg asin_deg acos_deg);
 use DateTime::Util::Astro::Common
     qw(julian_centuries aberration nutation MEAN_TROPICAL_YEAR);
@@ -83,7 +83,15 @@ use constant SOLAR_LONGITUDE_ARGS => [
     [     10, 126.60000,  26895.2920000 ],
     [     10,  85.90000,  12297.5360000 ]
 ];
-use constant SOLAR_YEAR_RATE => MEAN_TROPICAL_YEAR / 360;
+
+BEGIN
+{
+    # prep args as BigFloats during compilation
+    foreach my $numbers (@{ SOLAR_LONGITUDE_ARGS() }) {
+        map { $_ = bigfloat($_) } @$numbers;
+    }
+}
+use constant SOLAR_YEAR_RATE => bigfloat(MEAN_TROPICAL_YEAR / 360);
 use constant SOLAR_LONGITUDE_ALLOWED_DELTA => 10 ** -5;
 
 # [1] p.182
@@ -110,7 +118,7 @@ sub solar_longitude_after
     my($dt, $phi) = @_;
 
     my $tau     = moment($dt) +
-        SOLAR_YEAR_RATE * mod($phi - solar_longitude($dt), 360);
+        SOLAR_YEAR_RATE * mod(bigfloat($phi) - solar_longitude($dt), 360);
     my $l       = max(moment($dt), $tau - 5);
     my $u       = $tau + 5;
 
@@ -118,23 +126,21 @@ sub solar_longitude_after
         sub { abs($_[0] - $_[1]) <= SOLAR_LONGITUDE_ALLOWED_DELTA },
         sub { mod(solar_longitude(
             dt_from_moment($_[0])) - $phi, 360) < 180 } );
-    return dt_from_moment(bf_downgrade($rv));
+    return dt_from_moment($rv);
 }
 
 sub solar_longitude_before
 {
     my($dt, $phi) = @_;
 
-    my $tau     = moment($dt) +
-        SOLAR_YEAR_RATE * mod(solar_longitude($dt) - $phi, 360);
+    my $tau     = moment(estimate_prior_solar_longitude($dt, $phi));
     my $l       = $tau - 5;
     my $u       = min(moment($dt), $tau + 5);
 
     my $rv = binary_search($l, $u,
         sub { abs($_[0] - $_[1]) <= SOLAR_LONGITUDE_ALLOWED_DELTA },
-        sub { mod(solar_longitude(
-            dt_from_moment($_[0])), 360) < 180 } );
-    return dt_from_moment(bf_downgrade($rv));
+        sub { mod(solar_longitude(dt_from_moment($_[0])) - $phi, 360) < 180 } );
+    return dt_from_moment($rv);
 }
 
 # [1] p.203
@@ -240,7 +246,7 @@ Given a DateTime object $dt, calculates the solar longitude at that time.
 
 =head1 AUTHOR
 
-Daisuke Maki E<lt>daisuke@cpan.orgE<gt>
+Daisuke Maki E<lt>dmaki@cpan.orgE<gt>
 
 =head1 REFERENCES
 

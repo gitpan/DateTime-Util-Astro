@@ -5,8 +5,9 @@ lib/DateTime/Util/Astro/Moon.pm
 lib/DateTime/Util/Astro/Sun.pm
 LICENSE
 MANIFEST			This list of files
+META.yml
 t/01-sanity.t
 t/02-new_moon.t
-META.yml
+t/03-solar_longitude.t
 Makefile.PL        Added here by Build.PL
 SIGNATURE    Added here by Module::Build
