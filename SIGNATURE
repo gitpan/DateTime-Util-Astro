@@ -15,20 +15,20 @@ not run its Makefile.PL or Build.PL.
 Hash: SHA1
 
 SHA1 221920010823629916a7a36b601a8f27fc8a9b96 Build.PL
-SHA1 1da91d11264770ced730de88344196a024ecd210 CHANGES
+SHA1 1894faeecd0b85e3e921641fdaf14599f832dc7e CHANGES
 SHA1 3933b8775a7af6f0ae9dd661c838554bdc41fa63 LICENSE
 SHA1 061ab0d2a880891fe33c5fe2f80e093cd339944d MANIFEST
 SHA1 cd94a1aca3b06bbca639ee2b38799227b4ca3be1 META.yml
 SHA1 1849b2e69cd3bf568e221f73cf6e91ebae6489c0 Makefile.PL
-SHA1 f4f23dc82d5f6777e5dd42b3c34a2ce4e0a7c139 lib/DateTime/Util/Astro/Common.pm
-SHA1 c4157374edd894699b76640429b34f4e37d752a2 lib/DateTime/Util/Astro/Moon.pm
+SHA1 243980428f654784e2b5e934034fe330b9eba47c lib/DateTime/Util/Astro/Common.pm
+SHA1 cb07f01dda16332601d66a3113cf754fca0cf1df lib/DateTime/Util/Astro/Moon.pm
 SHA1 a830ea07a5eab58fe7d537d59d1f8f445bc2037e lib/DateTime/Util/Astro/Sun.pm
 SHA1 c921ade8ff9005f66672bdec3ede96080c9bf0df t/01-sanity.t
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.0.6 (GNU/Linux)
 Comment: For info see http://www.gnupg.org
 
-iD8DBQE/7ikDpIZqybP6lHMRArWsAJ9w3oRa0+PwZ18ATP5Bbrw38wbdmgCgmnr4
-reNXCdkxdmOoFDuwsNWoF/4=
-=nZNq
+iD8DBQFAA3qFpIZqybP6lHMRAgTvAKCeUzg1SqOoxFEcSz5sgY4fHH5CRACfZIo+
+3ApiQYu0oW1k9PmfkXzce1w=
+=yb6x
 -----END PGP SIGNATURE-----

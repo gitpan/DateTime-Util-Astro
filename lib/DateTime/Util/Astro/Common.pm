@@ -141,26 +141,34 @@ sub ephemeris_correction
         $dt = DateTime->from_object(object => $dt);
     }
 
-    my $year = $dt->year;
+    return EC_INTERNAL($dt->year);
+}
 
-    # XXX - possible optimization
+# micro optimization warning. the aim here is to reduce the number of calls
+# to Math::BigInt::new
 
-    my $c = EC_C($year);
-    my $x = EC_X($year);
+sub EC_INTERNAL
+{
+    my $year = shift;
 
     my $correction;
     if (1988 <= $year && $year <= 2019) {
-        $correction = EC1($year - 1933);
-    } elsif (1900 <= $year && $year <= 1987) {
-        $correction = EC2($c);
-    } elsif (1800 <= $year && $year <= 1899) {
-        $correction = EC3($c);
-    } elsif (1700 <= $year && $year <= 1799) {
-        $correction = EC4($year - 1700);
-    } elsif (1620 <= $year && $year <= 1699) {
-        $correction = EC5($year - 1600);
+        $correction = ($year - 1933) / (24 * 3600);
+    } elsif ($year < 1620 || $year > 2019) {
+        $correction = EC6(bigfloat(RD_MOMENT_1810_JAN_1 -
+            (DateTime->new(year => $year, month => 1, day => 1)->utc_rd_values)[0]));
     } else {
-        $correction = EC6($x);
+        my $c = EC_C($year);
+
+        if (1900 <= $year && $year <= 1987) {
+            $correction = EC2($c);
+        } elsif (1800 <= $year && $year <= 1899) {
+            $correction = EC3($c);
+        } elsif (1700 <= $year && $year <= 1799) {
+            $correction = EC4($year - 1700);
+        } else { 
+            $correction = EC5($year - 1600);
+        }
     }
 
     return $correction;
@@ -169,12 +177,7 @@ sub EC_C {
     (bigfloat(RD_MOMENT_1900_JAN_1 -
         (DateTime->new(year => $_[0], month => 7, day => 1)->utc_rd_values)[0]))    / 36525;
 }
-sub EC_X {
-    bigfloat(RD_MOMENT_1810_JAN_1 -
-        (DateTime->new(year => $_[0], month => 1, day => 1)->utc_rd_values)[0]);
-}
-sub EC1 {
-    $_[0] / (24 * 3600) }
+
 sub EC2 {
     polynomial($_[0], -0.00002, 0.000297, 0.025184,
         -0.181133, 0.553040, -0.861938, 0.677066, -0.212591);
@@ -239,16 +242,18 @@ sub equation_of_time
     my $epsilon = obliquity($dt);
     my $y = tan_deg($epsilon / 2) ** 2;
 
-    my $equation = 
-        (bigfloat(1) / (2 * pi)) *
+    my $equation = (
         ($y * sin_deg(2 * $longitude) +
             (-2 * $eccentricity * sin_deg($anomaly)) + 
             (4 * $eccentricity * $y * sin_deg($anomaly) * cos_deg(2 * $longitude)) +
             (-0.5 * ($y ** 2) * sin_deg(4 * $longitude)) +
-            (-1.25 * ($eccentricity ** 2) * sin_deg(2 * $anomaly)));
+            (-1.25 * ($eccentricity ** 2) * sin_deg(2 * $anomaly))) ) / (2 * pi);
 
-    my $sign = $equation >= 0 ? 1 : -1;
-    $sign * min(abs($equation), 0.5);
+    my $rv = min(abs($equation), 0.5);
+    if ($equation < 0) {
+        $rv *= -1;
+    }
+    $rv;
 }
 
 # [1] p.178
@@ -262,20 +267,19 @@ sub local_from_apparent
     $dt;
 }
 
-#BEGIN
-#{
-#    if (eval { require Memoize } && !$@) {
-#        Memoize::memoize('EC_C');
-#        Memoize::memoize('EC_X');
-#        Memoize::memoize('EC1');
-#        Memoize::memoize('EC2');
-#        Memoize::memoize('EC3');
-#        Memoize::memoize('EC4');
-#        Memoize::memoize('EC5');
-#        Memoize::memoize('EC6');
+BEGIN
+{
+    if (eval { require Memoize } && !$@) {
+        Memoize::memoize('EC_INTERNAL');
+        Memoize::memoize('EC_C');
+        Memoize::memoize('EC2');
+        Memoize::memoize('EC3');
+        Memoize::memoize('EC4');
+        Memoize::memoize('EC5');
+        Memoize::memoize('EC6');
 #        Memoize::memoize('julian_centuries');
-#    }
-#}
+    }
+}
 
 package DateTime::Util::Astro::::Location;
 use strict;
