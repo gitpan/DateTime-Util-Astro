@@ -3,7 +3,7 @@ use strict;
 use vars qw($VERSION @ISA @EXPORT_OK);
 BEGIN
 {
-	$VERSION = '0.01';
+    $VERSION = '0.01';
     @ISA = qw(Exporter);
     @EXPORT_OK = qw(
         MEAN_SYNODIC_MONTH
@@ -185,7 +185,7 @@ sub lunar_longitude
 sub nth_new_moon
 {
     my($n) = Params::Validate::validate_pos(@_,
-		{ type => Params::Validate::SCALAR });
+        { type => Params::Validate::SCALAR });
 
     my $k = $n - 24724;
     my $c = $k / 1236.85;
@@ -239,7 +239,7 @@ sub lunar_phase
 {
     my($dt) = Params::Validate::validate_pos(@_, { isa => 'DateTime' });
     return mod(
-		lunar_longitude($dt) - DateTime::Util::Astro::Sun::solar_longitude($dt), 360);
+        lunar_longitude($dt) - DateTime::Util::Astro::Sun::solar_longitude($dt), 360);
 }
 
 BEGIN

@@ -3,7 +3,7 @@ use strict;
 use vars qw($VERSION @ISA @EXPORT_OK);
 BEGIN
 {
-	$VERSION = '0.01';
+    $VERSION = '0.01';
     @ISA = qw(Exporter);
     @EXPORT_OK = qw(
         solar_longitude
@@ -18,7 +18,7 @@ use DateTime::Util::Calc qw(
     polynomial mod min max bf_downgrade angle bigfloat binary_search
     moment dt_from_moment sin_deg cos_deg tan_deg asin_deg acos_deg);
 use DateTime::Util::Astro::Common
-	qw(julian_centuries aberration nutation MEAN_TROPICAL_YEAR);
+    qw(julian_centuries aberration nutation MEAN_TROPICAL_YEAR);
 use POSIX();
 
 
@@ -211,7 +211,7 @@ __END__
 
 =head1 NAME
 
-DateTime::Util::Astro::Sun - Functions To Calculate Solnar Data
+DateTime::Util::Astro::Sun - Functions To Calculate Solar Data
 
 =head1 SYNOPSIS
 

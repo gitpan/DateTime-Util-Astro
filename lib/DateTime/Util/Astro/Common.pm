@@ -7,7 +7,7 @@ use vars qw($VERSION @ISA @EXPORT_OK);
 
 BEGIN
 {
-	$VERSION = '0.01';
+    $VERSION = '0.01';
     @ISA = qw(Exporter);
     @EXPORT_OK = qw(
         aberration
@@ -28,7 +28,7 @@ BEGIN
         RD_MOMENT_1900_JAN_1
         RD_MOMENT_1810_JAN_1
         RD_MOMENT_J2000
-	);
+    );
 }
 
 use DateTime;
@@ -265,15 +265,15 @@ sub local_from_apparent
 BEGIN
 {
     if (eval { require Memoize } && !$@) {
-	    Memoize::memoize('EC_C');
-	    Memoize::memoize('EC_X');
-	    Memoize::memoize('EC1');
-	    Memoize::memoize('EC2');
-	    Memoize::memoize('EC3');
-	    Memoize::memoize('EC4');
-	    Memoize::memoize('EC5');
-	    Memoize::memoize('EC6');
-	    Memoize::memoize('julian_centuries');
+        Memoize::memoize('EC_C');
+        Memoize::memoize('EC_X');
+        Memoize::memoize('EC1');
+        Memoize::memoize('EC2');
+        Memoize::memoize('EC3');
+        Memoize::memoize('EC4');
+        Memoize::memoize('EC5');
+        Memoize::memoize('EC6');
+        Memoize::memoize('julian_centuries');
     }
 }
 
