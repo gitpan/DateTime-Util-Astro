@@ -314,6 +314,12 @@ By default this is turned on, but you may toggle it off by passing the
 
   use DateTime::Util::Astro::Moon (memoize => 0);
 
+=head1 CONSTANTS
+
+=head2 MEAN_SYNODIC_MONTH
+
+The mean time between new moons
+
 =head1 FUNCTIONS
 
 =head2 lunar_longitude($dt)

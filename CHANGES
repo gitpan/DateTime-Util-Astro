@@ -1,0 +1,21 @@
+Changelog
+=========
+
+0.01_04 29 Dec 2003
+  - Doc tweak
+
+0.01_03 20 Dec 2003
+  - Removed debug statement
+  - Turns out memoization sometime breaks things. Commented out
+    for the time being
+  - Changed output of solar_longitude() and lunar_longitude such that
+    the calculated value is passed through bf_downgrade(). This should
+    speed things up... in some cases.
+  - Use constants where applicable
+
+0.01_02 19 Dec 2003
+  - Add sanity tests
+  - fix some indentation problems
+
+0.01_01 09 Dec 2003
+  - Initial Release
