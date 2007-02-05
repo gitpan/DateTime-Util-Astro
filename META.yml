@@ -1,30 +1,15 @@
---- #YAML:1.0
-name: DateTime-Util-Astro
-version: 0.06
-author: ~
-abstract: ~
+distribution_type: module
+generated_by: Module::Install version 0.64
 license: perl
-requires:
-  Cache::Cache: 0
+name: DateTime-Util-Astro
+no_index: 
+  directory: 
+    - inc
+    - t
+requires: 
   DateTime: 0
-  DateTime::Util::Calc: 0.08
-  Math::BigFloat: 0
+  DateTime::Util::Calc: 0.12
   Math::BigInt: 0
   Math::Trig: 0
   POSIX: 0
-build_requires:
-  Test::More: 0
-provides:
-  DateTime::Util::Astro::::Location:
-    file: lib/DateTime/Util/Astro/Common.pm
-    version: 0.02
-  DateTime::Util::Astro::Common:
-    file: lib/DateTime/Util/Astro/Common.pm
-    version: 0.02
-  DateTime::Util::Astro::Moon:
-    file: lib/DateTime/Util/Astro/Moon.pm
-    version: 0.04
-  DateTime::Util::Astro::Sun:
-    file: lib/DateTime/Util/Astro/Sun.pm
-    version: 0.04
-generated_by: Module::Build version 0.2607
+version: 0.08

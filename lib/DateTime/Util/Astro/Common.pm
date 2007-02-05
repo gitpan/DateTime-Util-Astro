@@ -1,4 +1,4 @@
-# Common.pm,v 1.4 2005/01/07 12:18:59 lestrrat Exp
+# $Id: Common.pm 3609 2007-02-05 04:36:16Z lestrrat $
 #
 # Daisuke Maki <dmaki@cpan.org>
 # All rights reserved.
@@ -26,6 +26,8 @@ BEGIN
         obliquity
         standard_from_local
         standard_from_universal
+        local_from_standard
+        local_from_universal
         universal_from_local
         universal_from_standard
         SPRING SUMMER AUTUMN WINTER
@@ -39,16 +41,16 @@ BEGIN
 use DateTime;
 use DateTime::Util::Calc
      qw(angle polynomial sin_deg cos_deg tan_deg bigfloat
-        min moment dt_from_moment bf_downgrade);
+        min moment dt_from_moment);
 use Math::BigInt   ('upgrade' => 'Math::BigFloat');
 use Math::BigFloat ('lib'     => 'GMP,Pari');
 use Math::Trig qw(pi);
 
 # I got the following from (DateTime->new(...)->utc_rd_values)[0]
-use constant RD_MOMENT_1900_JAN_1 => Math::BigFloat->new(693596);
-use constant RD_MOMENT_1810_JAN_1 => Math::BigFloat->new(660724.5);
-use constant RD_MOMENT_J2000      => Math::BigFloat->new(730120.5);
-use constant MEAN_TROPICAL_YEAR   => Math::BigFloat->new(365.242189);
+use constant RD_MOMENT_1900_JAN_1 => Math::BigFloat->new('693596');
+use constant RD_MOMENT_1810_JAN_1 => Math::BigFloat->new('660724.5');
+use constant RD_MOMENT_J2000      => Math::BigFloat->new('730120.5');
+use constant MEAN_TROPICAL_YEAR   => Math::BigFloat->new('365.242189');
 use constant SPRING => 0;
 use constant SUMMER => 90;
 use constant AUTUMN => 180;
@@ -162,15 +164,14 @@ sub ephemeris_correction
 }
 
 sub EC_C {
-    (bigfloat(RD_MOMENT_1900_JAN_1 -
-        (DateTime->new(year => $_[0], month => 7, day => 1, time_zone => 'UTC')->utc_rd_values)[0]))    / 36525;
+    (RD_MOMENT_1900_JAN_1 -
+        (DateTime->new(year => $_[0], month => 7, day => 1, time_zone => 'UTC')->utc_rd_values)[0]) / 36525;
 }
 sub EC_X {
-    bigfloat(RD_MOMENT_1810_JAN_1 -
+    (RD_MOMENT_1810_JAN_1 -
         (DateTime->new(year => $_[0], month => 1, day => 1, time_zone => 'UTC')->utc_rd_values)[0]);
 }
-sub EC1 {
-    $_[0] / (24 * 3600) }
+sub EC1 { Math::BigFloat->new($_[0]) / (24 * 3600) }
 sub EC2 {
     polynomial($_[0], -0.00002, 0.000297, 0.025184,
         -0.181133, 0.553040, -0.861938, 0.677066, -0.212591);
@@ -185,19 +186,22 @@ sub EC4 {
     polynomial($_[0], 8.118780842, -0.005092142,
         0.003336121, -0.0000266484) / (24 * 3600);
 }
-sub EC5 {
-    polynomial($_[0], 196.58333,
-        -4.0675, 0.0219167) / ( 24 * 3600 )
+sub EC5
+{
+    polynomial($_[0], 
+        Math::BigFloat->new('196.58333'), Math::BigFloat->new('-4.0675'), Math::BigFloat->new('0.0219167')) / ( 24 * 3600 )
 }
-sub EC6 {
-    (($_[0] ** 2 / 41048480 ) - 15) / ( 24 * 3600 ) }
+sub EC6
+{
+    ((Math::BigFloat->new($_[0]) ** 2 / Math::BigFloat->new(41048480) ) - 15) / ( 24 * 3600 )
+}
 
 # [1] p.183
 sub aberration
 {
     my $dt = shift;
     my $c = julian_centuries($dt);
-    return 0.0000974 * cos_deg(177.63 + 35999.01848 * $c) - 0.0005575;
+    return Math::BigFloat->new('0.0000974') * cos_deg(Math::BigFloat->new('177.63') + Math::BigFloat->new('35999.01848') * $c) - Math::BigFloat->new('0.0005575');
 }
 
 # [1] p.172
@@ -213,11 +217,13 @@ sub nutation
     my $dt = shift;
 
     my $c = julian_centuries($dt);
-    my $A = polynomial($c, 124.90, -1934.134, 0.002063);
-    my $B = polynomial($c, 201.11, 72001.5377, 0.00057);
+    my $A = polynomial($c, 
+        Math::BigFloat->new('124.90'), Math::BigFloat->new('-1934.134'), Math::BigFloat->new('0.002063'));
+    my $B = polynomial($c, 
+        Math::BigFloat->new('201.11'), Math::BigFloat->new('72001.5377'), Math::BigFloat->new('0.00057'));
 
-    return bigfloat(-0.004778) * sin_deg($A) + 
-        bigfloat(-0.0003667) * sin_deg($B);
+    return Math::BigFloat->new('-0.004778') * sin_deg($A) + 
+        Math::BigFloat->new('-0.0003667') * sin_deg($B);
 }
 
 # [1] p.177
@@ -257,7 +263,7 @@ sub local_from_apparent
     $dt;
 }
 
-package DateTime::Util::Astro::::Location;
+package DateTime::Util::Astro::Location;
 use strict;
 
 sub new
@@ -346,10 +352,32 @@ takes to reach the Earth
 
 =head2 dynamical_moment_from_dt($dt)
 
+=head2 julian_centuries($moment)
+
+The number and fraction of uniform-length centuries at a given moment.
+
 =head2 ephemeris_correction($dt)
 
 Calculates the offset from "dynamical time", which is caused by the
 retarding effects of tide and other atmospheric conditions.
+
+=head2 EC_C
+
+=head2 EC_X
+
+=head2 EC1
+
+=head2 EC2
+
+=head2 EC3
+
+=head2 EC4
+
+=head2 EC5
+
+=head2 EC6
+
+These are used to calculate the ephemeris_correction.
 
 =head2 equation_of_time($dt)
 
@@ -368,6 +396,10 @@ Calculates the effect caused by the wobble of the Earth.
 =head2 obliquity($)
 
 Calculates the inclination of th Earth
+
+=head2 local_from_standard($dt, $location)
+
+=head2 local_from_universal($dt, $location)
 
 =head2 standard_from_local($dt,$location)
 

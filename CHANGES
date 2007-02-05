@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.08 05 Feb 2007
+  - Use DateTime::Util::Calc 0.12, which fixes various problems.
+  - Fix tests accordingly.
+
+0.07 12 Jan 2005
+  - Fix bug that came up while debugging DateTime::Event::SolarTerm
+  - This version was never released
+
 0.06 12 Jan 2005
   - Fix solar_longitude_before()
   - Add tests
