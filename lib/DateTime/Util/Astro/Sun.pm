@@ -6,9 +6,10 @@
 package DateTime::Util::Astro::Sun;
 use strict;
 use vars qw($VERSION @ISA @EXPORT_OK);
+use DateTime::Util::Astro;
 BEGIN
 {
-    $VERSION = '0.05';
+    $VERSION = $DateTime::Util::Astro::VERSION;
     @ISA = qw(Exporter);
     @EXPORT_OK = qw(
         solar_longitude

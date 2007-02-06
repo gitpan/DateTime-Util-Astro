@@ -6,9 +6,10 @@
 package DateTime::Util::Astro::Moon;
 use strict;
 use vars qw($VERSION @ISA @EXPORT_OK $CACHE);
+use DateTime::Util::Astro;
 BEGIN
 {
-    $VERSION = '0.04';
+    $VERSION = $DateTime::Util::Astro::VERSION;
     @ISA = qw(Exporter);
     @EXPORT_OK = qw(
         MEAN_SYNODIC_MONTH

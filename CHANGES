@@ -1,6 +1,9 @@
 Changelog
 =========
 
+0.09 06 Feb 20077
+  - Change versioning. No code change.
+
 0.08 05 Feb 2007
   - Use DateTime::Util::Calc 0.12, which fixes various problems.
   - Fix tests accordingly.
