@@ -62,7 +62,14 @@ foreach my $data (@data) {
 
     ok($delta < $DELTA_LONGITUDE, "Longitude delta for n = $n. Delta = $DELTA_LONGITUDE");
 
-    # check cache
-    my $cached = DateTime::Util::Astro::Moon::get_cache()->get($n);
-    ok($cached == $dt, "Cached result match");
+    SKIP: {
+        # check cache
+        my $cache  = DateTime::Util::Astro::Moon->cache;
+        if (! $cache) {
+            skip "no cache available", 1;
+        } else {
+            my $cached = $cache->get($n);
+            ok($cached == $dt, "Cached result match");
+        }
+    }
 }

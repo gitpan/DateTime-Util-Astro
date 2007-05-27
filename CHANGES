@@ -1,7 +1,13 @@
 Changelog
 =========
 
-0.09 06 Feb 20077
+0.10 28 May 2007
+  - use Class::Data::Inheritable.
+  - remove set_cache()/get_cache() in favor for cache()
+  - make Cache::MemoryCache optional
+  - use Exporter without subclassing
+
+0.09 06 Feb 2007
   - Change versioning. No code change.
 
 0.08 05 Feb 2007

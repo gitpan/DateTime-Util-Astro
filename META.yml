@@ -1,15 +1,22 @@
+--- 
 distribution_type: module
-generated_by: Module::Install version 0.64
+generated_by: Module::Install version 0.67
 license: perl
+meta-spec: 
+  url: http://module-build.sourceforge.net/META-spec-v1.3.html
+  version: 1.3
 name: DateTime-Util-Astro
 no_index: 
   directory: 
     - inc
     - t
+recommends: 
+  Cache::MemoryCache: 0
 requires: 
+  Class::Data::Inheritable: 0
   DateTime: 0
-  DateTime::Util::Calc: 0.12
+  DateTime::Util::Calc: 0.13
   Math::BigInt: 0
   Math::Trig: 0
   POSIX: 0
-version: 0.09
+version: 0.10

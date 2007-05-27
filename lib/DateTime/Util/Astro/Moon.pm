@@ -5,12 +5,13 @@
 
 package DateTime::Util::Astro::Moon;
 use strict;
-use vars qw($VERSION @ISA @EXPORT_OK $CACHE);
+use vars qw($VERSION @EXPORT_OK $CACHE);
+use base qw(Class::Data::Inheritable);
 use DateTime::Util::Astro;
+use Exporter qw(import);
 BEGIN
 {
     $VERSION = $DateTime::Util::Astro::VERSION;
-    @ISA = qw(Exporter);
     @EXPORT_OK = qw(
         MEAN_SYNODIC_MONTH
         lunar_longitude
@@ -143,25 +144,16 @@ use constant NTH_NEW_MOON_ADDITIONAL_ARGS => [
     [ 239.56, 25.513099, 0.000035 ]
 ];
 
-sub set_cache
-{
-    $CACHE = shift;
-}
-
-sub get_cache
-{
-    if (! defined $CACHE) {
-        require Cache::MemoryCache;
-
+__PACKAGE__->mk_classdata(cache => do {
+    if (eval { require Cache::MemoryCache } && !$@) {
         my $namespace = __PACKAGE__;
         $namespace =~ s/::/-/g;
-        set_cache(Cache::MemoryCache->new( {
+        Cache::MemoryCache->new( {
             namespace => $namespace,
             default_expires_in => $Cache::Cache::EXPIRES_NEVER
-        }));
+        })
     }
-    return $CACHE;
-}
+});
 
 # [1] p190
 sub lunar_longitude
@@ -212,8 +204,8 @@ sub nth_new_moon
 {
     my $n = shift;
 
-    my $cache = get_cache();
-    my $p     = $cache->get($n);
+    my $cache = __PACKAGE__->cache();
+    my $p     = $cache && $cache->get($n);
     if ($p) {
         return $p;
     }
@@ -262,7 +254,7 @@ sub nth_new_moon
     }
 
     $p = dt_from_dynamical($approx + $correction + $extra + $additional);
-    $cache->set($n, $p);
+    $cache->set($n, $p) if $cache;
     return $p;
 }
 
@@ -335,18 +327,18 @@ intetface, and by defaults to using L<Cache::MemoryCache|Cache::MemoryCache>.
 If you would like to use a different type of cache, or tweak its behavior,
 you can either assign or call methods on this cache object:
 
-  DateTime::Util::Astro::Moon::set_cache($cache);
-  my $cache = DateTime::Util::Astro::Moon::get_cache();
+  DateTime::Util::Astro::Moon->cache($cache);
+  my $cache = DateTime::Util::Astro::Moon->cache();
 
 For example, if you want to forcibly expire this cache, do this:
 
-  DateTime::Util::Astro::Moon::get_cache()->purge();
+  DateTime::Util::Astro::Moon->cache()->purge();
 
 Or for maximum efficiency, you could use a FileCache with EXPIRES_NEVER set
 on (new moons don't change from for a given $n, so it's safe to do this --
 however, you probably want to clear it when you upgrade this module)
 
-  DateTime::Util::Astro::Moon::set_cache(
+  DateTime::Util::Astro::Moon->cache(
     Cache::MemoryCache->new({
       namespace => 'MoonCache',
       default_expires_in => $Cache::Cache::EXPIRES_NEVER
@@ -374,14 +366,6 @@ Given a DateTime object $dt, calculates the lunar phase (in degrees)
 Given an integer $n, returns a DateTime object representing the moment
 of $n-th new moon after R.D. 0. The 0th new moon was on January 11, 1
 (Gregorian)
-
-=head2 get_cache()
-
-Return the cache object.
-
-=head2 set_cache()
-
-Set the cache object.
 
 =head1 AUTHOR
 
