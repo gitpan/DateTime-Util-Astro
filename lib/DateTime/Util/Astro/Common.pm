@@ -1,20 +1,20 @@
-# $Id: Common.pm 3610 2007-02-06 00:16:23Z lestrrat $
+# $Id: Common.pm 3697 2007-05-28 01:14:37Z lestrrat $
 #
-# Daisuke Maki <dmaki@cpan.org>
-# All rights reserved.
+# Copyright (c) 2004-2007 Daisuke Maki <daisuke@endeworks.jp>
 # 
 # Please see file "LICENSE" for license information on code from
 # "Calendrical Calculations".
 
 package DateTime::Util::Astro::Common;
 use strict;
+use warnings;
 use vars qw($VERSION @ISA @EXPORT_OK);
+use Exporter qw(import);
 use DateTime::Util::Astro;
 
 BEGIN
 {
     $VERSION = $DateTime::Util::Astro::VERSION;
-    @ISA = qw(Exporter);
     @EXPORT_OK = qw(
         aberration
         dt_from_dynamical
@@ -445,7 +445,7 @@ his module, so that it doesn't pollute users' file systems.
 
 =head1 AUTHOR
 
-Daisuke Maki E<lt>daisuke@cpan.orgE<gt>
+Copyright (c) 2004-2007 Daisuke Maki E<lt>daisuke@endeworks.jpE<gt>
 
 =head1 REFERENCES
 

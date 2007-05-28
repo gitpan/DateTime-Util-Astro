@@ -1,10 +1,10 @@
 # Moon.pm,v 1.5 2005/01/07 12:18:59 lestrrat Exp
 #
-# Daisuke Maki <dmaki@cpan.org>
-# All rights reserved.
+# Copyright (c) 2004-2007 Daisuke Maki <daisuke@endeworks.jp>
 
 package DateTime::Util::Astro::Moon;
 use strict;
+use warnings;
 use vars qw($VERSION @EXPORT_OK $CACHE);
 use base qw(Class::Data::Inheritable);
 use DateTime::Util::Astro;
@@ -369,7 +369,7 @@ of $n-th new moon after R.D. 0. The 0th new moon was on January 11, 1
 
 =head1 AUTHOR
 
-Daisuke Maki E<lt>dmaki@cpan.orgE<gt>
+Copyright (c) 2004-2007 Daisuke Maki E<lt>daisuke@endeworks.jpE<gt>
 
 =head1 REFERENCES
 

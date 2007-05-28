@@ -1,16 +1,16 @@
 # Sun.pm,v 1.6 2005/01/07 12:18:59 lestrrat Exp
 #
-# Daisuke Maki <dmaki@cpan.org>
-# All rights reserved.
+# Copyright (c) 2004-2007 Daisuke Maki <daisuke@endeworks.jp>
 
 package DateTime::Util::Astro::Sun;
 use strict;
-use vars qw($VERSION @ISA @EXPORT_OK);
+use warnings;
+use vars qw($VERSION @EXPORT_OK);
+use Exporter qw(import);
 use DateTime::Util::Astro;
 BEGIN
 {
     $VERSION = $DateTime::Util::Astro::VERSION;
-    @ISA = qw(Exporter);
     @EXPORT_OK = qw(
         solar_longitude
         solar_longitude_after
@@ -125,19 +125,15 @@ sub solar_longitude_after
     my($dt, $phi) = @_;
 
     my $m       = moment($dt);
-    my $n       = SOLAR_YEAR_RATE * mod(bigfloat($phi) - solar_longitude($dt), 360);
+    my $n       = SOLAR_YEAR_RATE * 
+        mod( bigfloat($phi) - solar_longitude($dt), 360);
 
-    # normally $tau = $m + $n, but sometimes $n is more than one year away.
-    # this edge case happens when $m is just barely after the time
-    # when solar_longitude(dt) == $phi
-    my $tau     = $m - $n >= 365 ? $m : $m + $n;
+    my $tau     = $m + $n;
     my $l       = max(moment($dt), $tau - 5);
     my $u       = $tau + 5;
-
     my $rv = binary_search($l, $u,
         sub { abs($_[0] - $_[1]) <= SOLAR_LONGITUDE_ALLOWED_DELTA },
-        sub { mod(solar_longitude(
-            dt_from_moment($_[0])) - $phi, 360) < 180 } );
+        sub { mod(solar_longitude(dt_from_moment($_[0])) - $phi, 360) < 180 } );
     return dt_from_moment($rv);
 }
 
