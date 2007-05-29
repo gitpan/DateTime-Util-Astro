@@ -1,4 +1,4 @@
-# $Id: Common.pm 3697 2007-05-28 01:14:37Z lestrrat $
+# $Id: /local/datetime/modules/DateTime-Util-Astro/trunk/lib/DateTime/Util/Astro/Common.pm 11785 2007-05-29T22:28:00.218926Z daisuke  $
 #
 # Copyright (c) 2004-2007 Daisuke Maki <daisuke@endeworks.jp>
 # 
@@ -8,12 +8,13 @@
 package DateTime::Util::Astro::Common;
 use strict;
 use warnings;
-use vars qw($VERSION @ISA @EXPORT_OK);
-use Exporter qw(import);
+use vars qw($VERSION @EXPORT_OK);
+use Exporter;
 use DateTime::Util::Astro;
 
 BEGIN
 {
+    *import = \&Exporter::import;
     $VERSION = $DateTime::Util::Astro::VERSION;
     @EXPORT_OK = qw(
         aberration

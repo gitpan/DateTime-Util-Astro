@@ -8,9 +8,11 @@ use warnings;
 use vars qw($VERSION @EXPORT_OK $CACHE);
 use base qw(Class::Data::Inheritable);
 use DateTime::Util::Astro;
-use Exporter qw(import);
+use Exporter;
 BEGIN
 {
+    *import = \&Exporter::import;
+
     $VERSION = $DateTime::Util::Astro::VERSION;
     @EXPORT_OK = qw(
         MEAN_SYNODIC_MONTH

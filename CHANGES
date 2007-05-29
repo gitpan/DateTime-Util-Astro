@@ -1,6 +1,10 @@
 Changelog
 =========
 
+0.11001 - Wed 30 May 2007
+  - Just realized that Exporter qw(import) does not work for Exporter
+    versions < 5.57.
+
 0.11 28 May 2007
   - fix solar_longitude_after() to a degree. I still can't get a few dates
     to calculate a close enough approximation, but this should do for
