@@ -1,4 +1,4 @@
-# $Id: /local/datetime/modules/DateTime-Util-Astro/trunk/lib/DateTime/Util/Astro/Common.pm 11785 2007-05-29T22:28:00.218926Z daisuke  $
+# $Id: /mirror/datetime/DateTime-Util-Astro/trunk/lib/DateTime/Util/Astro/Common.pm 31665 2007-12-04T03:23:42.352707Z lestrrat  $
 #
 # Copyright (c) 2004-2007 Daisuke Maki <daisuke@endeworks.jp>
 # 
@@ -49,7 +49,8 @@ use Math::BigFloat ('lib'     => 'GMP,Pari');
 use Math::Trig qw(pi);
 
 # I got the following from (DateTime->new(...)->utc_rd_values)[0]
-use constant RD_MOMENT_1900_JAN_1 => Math::BigFloat->new('693596');
+use constant RD_MOMENT_1900_JAN_1 => 
+    (DateTime->new(year => 1900, month => 1, day => 1)->utc_rd_values)[0];
 use constant RD_MOMENT_1810_JAN_1 => Math::BigFloat->new('660724.5');
 use constant RD_MOMENT_J2000      => Math::BigFloat->new('730120.5');
 use constant MEAN_TROPICAL_YEAR   => Math::BigFloat->new('365.242189');
@@ -131,6 +132,7 @@ sub obliquity
 }
 
 # [1] p171 + errata 158
+my %EC;
 sub ephemeris_correction
 {
     my $dt = shift;
@@ -141,37 +143,67 @@ sub ephemeris_correction
     }
 
     my $year = $dt->year;
-
-    # XXX - possible optimization
-
-    my $c = EC_C($year);
-    my $x = EC_X($year);
-
-    my $correction;
-    if (1988 <= $year && $year <= 2019) {
-        $correction = EC1($year - 1933);
-    } elsif (1900 <= $year && $year <= 1987) {
-        $correction = EC2($c);
-    } elsif (1800 <= $year && $year <= 1899) {
-        $correction = EC3($c);
-    } elsif (1700 <= $year && $year <= 1799) {
-        $correction = EC4($year - 1700);
-    } elsif (1620 <= $year && $year <= 1699) {
-        $correction = EC5($year - 1600);
-    } else {
-        $correction = EC6($x);
+    my $correction = $EC{ $year };
+    if (! $correction) {
+        if (1988 <= $year && $year <= 2019) {
+            $correction = EC1($year - 1933);
+        } elsif (1900 <= $year && $year <= 1987) {
+            $correction = EC2( EC_C($year) );
+        } elsif (1800 <= $year && $year <= 1899) {
+            $correction = EC3( EC_C($year) );
+        } elsif (1700 <= $year && $year <= 1799) {
+            $correction = EC4($year - 1700);
+        } elsif (1620 <= $year && $year <= 1699) {
+            $correction = EC5($year - 1600);
+        } else {
+            $correction = EC6( EC_X($year) );
+        }
+        $EC{ $year } = $correction;
     }
 
     return $correction;
 }
 
-sub EC_C {
-    (RD_MOMENT_1900_JAN_1 -
-        (DateTime->new(year => $_[0], month => 7, day => 1, time_zone => 'UTC')->utc_rd_values)[0]) / 36525;
+my %EC_C;
+sub EC_C
+{
+    # This value is constant for a given year
+    my $value = $EC_C{ $_[0] };
+    if (! defined $value) {
+        my $top = (
+            (DateTime->new(
+                year => $_[0],
+                month => 7,
+                day => 1,
+                time_zone => 'UTC'
+            )->utc_rd_values)[0]
+            -
+            RD_MOMENT_1900_JAN_1
+        );
+        $value = $top / 36525;
+        $EC_C{ $_[0] } = $value;
+    }
+    return $value;
 }
-sub EC_X {
-    (RD_MOMENT_1810_JAN_1 -
-        (DateTime->new(year => $_[0], month => 1, day => 1, time_zone => 'UTC')->utc_rd_values)[0]);
+
+my %EC_X;
+sub EC_X
+{
+    my $value = $EC_X{ $_[0] };
+    if (! defined $value) {
+        $value = (
+            (DateTime->new(
+                year => $_[0],
+                month => 1,
+                day => 1,
+                time_zone => 'UTC'
+            )->utc_rd_values)[0]
+            -
+            RD_MOMENT_1810_JAN_1
+        );
+        $EC_X{ $_[0] } = $value;
+    }
+    return $value;
 }
 sub EC1 { Math::BigFloat->new($_[0]) / (24 * 3600) }
 sub EC2 {
@@ -179,10 +211,19 @@ sub EC2 {
         -0.181133, 0.553040, -0.861938, 0.677066, -0.212591);
 }
 sub EC3 {
-    polynomial($_[0],
-        -0.00009, 0.003844, 0.083563, 0.865736, 4.867575,
-        -15.845535, 31.332267, -38.291999, 28.316289,
-        11.636204, 2.043794);
+    polynomial($_[0], qw(
+        -0.000009
+         0.003844
+         0.083563
+         0.865736
+         4.867575
+        15.845535
+        31.332267
+        38.291999
+        28.316289
+        11.636204
+         2.043794
+    ));
 }
 sub EC4 {
     polynomial($_[0], 8.118780842, -0.005092142,

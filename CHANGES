@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.12000 - Tue 04 Nov 2007 [rev 3804]
+  - Fix ephemeris_correction. The Calculations for middle ages were
+    totally and utterly wrong. rt #31157
+  - Cache the results from ephemeris_correction. This makes things nominally
+    faster.
+
 0.11001 - Wed 30 May 2007
   - Just realized that Exporter qw(import) does not work for Exporter
     versions < 5.57.

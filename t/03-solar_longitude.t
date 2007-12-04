@@ -3,15 +3,10 @@
 # data taken from http://aa.usno.navy.mil/data/docs/EarthSeasons.html
 
 use strict;
-use Test::More qw(no_plan);
+use Test::More (tests => 25);
 BEGIN
 {
     use_ok("DateTime::Util::Astro::Sun", qw(solar_longitude solar_longitude_after solar_longitude_before));
-}
-
-foreach my $module qw(Math::BigInt) {
-    no strict 'refs';
-    diag("Loaded $module " . ${$module . '::VERSION'});
 }
 
 use constant ALLOWED_LONGITUDE_DELTA => 0.015;

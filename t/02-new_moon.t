@@ -8,11 +8,6 @@ BEGIN
     use_ok("DateTime::Util::Astro::Sun",  qw(solar_longitude));
 }
 
-foreach my $module qw(Math::BigInt) {
-    no strict 'refs';
-    diag("Loaded $module " . ${$module . '::VERSION'});
-}
-
 # Below table from http://aa.usno.navy.mil/data/docs/MoonPhase.html
 # for year 2000
 
